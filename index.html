@@ -18,21 +18,33 @@
     <div class="wrap">
       <h1 class="main-title">「台湾居民未往來大陆贱民证」申辦處</h1>
       <div class="inner">
-        <div class="intro">
-          <h2 class="form-title">「台湾居民未往來大陆贱民证」<br>申請表格</h2>
-          <p class="msg">請點擊下方「上傳照片」按鈕選擇您欲使用的相片，上傳完畢後可拖曳調整。</p>
-          <p class="msg">調整完畢後，點擊「完成手續」即可下載此證。</p>
-        </div>
-        <div class="make-block">
-          <input class="uploadphoto" id="upload" type="file" accept="image/*" style="display:none;">
-          <label id="fileLabel" for="upload"></label>
-          <div class="photo-container">
-            <div class="photo-wrap">
-              <canvas id="c"></canvas>
-              <div class="frame"></div>
-            </div>
+        <div id="step1">
+          <div class="intro">
+            <h2 class="form-title">「台湾居民未往來大陆贱民证」<br>申請表格</h2>
+            <p class="msg">請點擊下方「上傳照片」按鈕選擇您欲使用的相片，上傳完畢後可拖曳調整。</p>
+            <p class="msg">調整完畢後，請點擊「遞交申請」。</p>
           </div>
-          <div class="control"><a class="upload-btn" href="javascript:;">上傳照片</a><a class="download-btn" href="javascript:;">完成手續</a></div>
+          <div class="make-block">
+            <input class="uploadphoto" id="upload" type="file" accept="image/*" style="display:none;">
+            <label id="fileLabel" for="upload"></label>
+            <div class="photo-container">
+              <div class="photo-wrap">
+                <canvas id="c"></canvas>
+                <div class="frame"></div>
+              </div>
+            </div>
+            <div class="control"><a class="upload-btn" href="javascript:;">上傳照片</a><a class="ok-btn" href="javascript:;">遞交申請</a></div>
+          </div>
+        </div>
+        <div id="step2" style="display:none;">
+          <div class="intro">
+            <h2 class="form-title">您的「台湾居民未往來大陆贱民证」已申辦完成。</h2>
+            <p class="msg" style="text-align:center;">點擊「完成手續」或右鍵另存即可下載領取此證自由使用。</p>
+          </div>
+          <div class="make-block">
+            <div class="card"><img class="card-pic" src="" alt=""></div>
+            <div class="control"><a class="re-btn" href="index.html">重新申辦</a><a class="download-btn" href="javascript:;">完成手續</a></div>
+          </div>
         </div>
       </div>
     </div>
@@ -55,42 +67,76 @@
               
           });
       
-          $('.download-btn').click(function(){
+          $('.ok-btn').click(function(){
+      
               canvas.deactivateAll().renderAll();
-              if($('body #tempIfm').length>0) $('body #tempIfm').remove();
+              //if($('body #tempIfm').length>0) $('body #tempIfm').remove();
+              
               html2canvas($('.photo-container'),{
                   onrendered: function(canvas){
                       var tempImg = canvas.toDataURL("image/png");
-                      saveAs(tempImg, 'untouchable.jpg');
+                      saveAs(tempImg, 'untouchable.png');
                       //$('.download-btn').attr('href',tempImg);
                       //- url = tempImg.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
                       //- $ifm = $('<iframe id="tempIfm" style="display:none;">');
                       //- $ifm.attr('src',url);
                       //- $('body').append($ifm);
                       //window.open(url);
+                      $('#step1').hide();
                   }
               });
           })
       
+      
+          $('.download-btn').click(function(e){
+              var a = document.createElement('a');
+      
+              if(typeof a.download != "undefined"){
+                  // download attribute is supported
+              }
+              else{
+                  // download attribute is not supported
+                  e.preventDefault();
+                  var blobObject = dataURItoBlob($(this).attr('href'))
+                  window.navigator.msSaveBlob(blobObject, 'untouchable.png');
+                  //location.href = $(this).attr('href');
+              }
+          })
+          
+      
       });
       
       function saveAs(uri, filename) {
-          var link = document.createElement('a');
-          if (typeof link.download === 'string') {
-          link.href = uri;
-          link.download = filename;
-      
-          //Firefox requires the link to be in the body
-          document.body.appendChild(link);
-      
-          //simulate click
-          link.click();
-      
+          var link = $('.download-btn');
+          //if (typeof link.download === 'string') {
+          link.attr('href',uri);
+          link.attr('download',filename);
+          $('.card-pic').attr('src',uri);
+          $('#step2').fadeIn();
           //remove the link when done
-          document.body.removeChild(link);
-          } else {
-          window.open(uri);
+          //document.body.removeChild(link);
+          //} else {
+          //window.open(uri);
+          //}
+      }
+      function dataURItoBlob(dataURI) {
+          // convert base64/URLEncoded data component to raw binary data held in a string
+          var byteString;
+          if (dataURI.split(',')[0].indexOf('base64') >= 0)
+              byteString = atob(dataURI.split(',')[1]);
+          else
+              byteString = unescape(dataURI.split(',')[1]);
+      
+          // separate out the mime component
+          var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+      
+          // write the bytes of the string to a typed array
+          var ia = new Uint8Array(byteString.length);
+          for (var i = 0; i < byteString.length; i++) {
+              ia[i] = byteString.charCodeAt(i);
           }
+      
+          return new Blob([ia], {type:mimeString});
       }
       
       
@@ -134,7 +180,7 @@
                   }, 500);
               };
       
-              reader.readAsBinaryString(input.files[0]);
+              reader.readAsDataURL(input.files[0]);
           }
           
       }

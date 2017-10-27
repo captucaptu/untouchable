@@ -1,6 +1,6 @@
 @import "mixin.less";
 @import "normalize.css";
-@import "font-awesome.css";
+//@import "font-awesome.css";
 @import "color.less";
 //========================
 // default
@@ -153,7 +153,9 @@ input[type="button"] {
 }
 
 .upload-btn,
-.download-btn{
+.download-btn,
+.re-btn,
+.ok-btn{
 	display: block;
 	float: left;
 	width: 50%;
@@ -165,10 +167,13 @@ input[type="button"] {
 	padding: 1em;
 }
 
-.upload-btn{
+.upload-btn,
+.re-btn{
 	border-right: none;
 }
 .intro{
+	width: 90%;
+	margin: 0 auto;
 	margin-bottom: 3em;
 }
 .form-title{
@@ -182,14 +187,23 @@ input[type="button"] {
 }
 .msg{
 	display: block;
-	width: 90%;
 	font-size: 1.3em;
 	line-height: 1.5em;
 	margin: 0 auto .5em auto;
 }
 
 
-
+#step2{
+	.card{
+		display: block;
+		position: relative;
+	}
+	img{
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+}
 
 
 
