@@ -1,2 +1,134 @@
 extend _tpl.jade
 block yield
+
+
+
+    .wrap
+        h1.main-title 「台湾居民未往來大陆贱民证」申辦處
+        .inner
+            .intro
+                h2.form-title 「台湾居民未往來大陆贱民证」<br>申請表格
+                p.msg 請點擊下方「上傳照片」按鈕選擇您欲使用的相片，上傳完畢後可拖曳調整。
+                p.msg 調整完畢後，點擊「完成手續」即可下載此證。
+            .make-block
+                input.uploadphoto#upload(type="file",accept="image/*",style="display:none;")
+                label#fileLabel(for="upload")
+                .photo-container
+                    .photo-wrap
+                        canvas#c
+                        .frame
+                .control
+                    a.upload-btn(href="javascript:;") 上傳照片
+                    a.download-btn(href="javascript:;") 完成手續
+    
+
+    script.
+        var canvas;
+        var isCanvasCreated = false;
+        var ctx;
+        var photo;
+        $(document).ready(function(){
+            setCanvas();
+           
+            //照片上傳
+            $('.upload-btn').click(function(){$('#upload').trigger('click');});
+            $('.uploadphoto').on('change',function(){
+                
+                if(isCanvasCreated){
+                    canvas.clear().renderAll();
+                }
+                readURL(this);
+                
+            });
+
+            $('.download-btn').click(function(){
+                canvas.deactivateAll().renderAll();
+                if($('body #tempIfm').length>0) $('body #tempIfm').remove();
+                html2canvas($('.photo-container'),{
+                    onrendered: function(canvas){
+                        var tempImg = canvas.toDataURL("image/png");
+                        //$('.download-btn').attr('href',tempImg);
+                        url = tempImg.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+                        $ifm = $('<iframe id="tempIfm" style="display:none;">');
+                        $ifm.attr('src',url);
+                        $('body').append($ifm);
+                        //window.open(url);
+                    }
+                });
+            })
+
+        });
+
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var file = input.files[0];
+                var reader = new FileReader();
+                var imgurl;
+                reader.onload = function (e) {
+                    console.log(input.files[0])
+                    var exif = EXIF.readFromBinaryFile(new BinaryFile(e.target.result));
+
+                    var tmp_canvas = document.createElement('canvas');
+                    window.mp = new MegaPixImage(input.files[0]);
+                    
+                    mp.render(tmp_canvas, {
+                        orientation: exif.Orientation,
+                        quality: 0.8
+                    });
+
+                    setTimeout(function () {
+                        imgurl = tmp_canvas.toDataURL("image/jpeg", 0.8);
+                        fabric.Image.fromURL(imgurl, function (img) {
+                            if (img.width > img.height) {
+                                var ratio = img.width / img.height;
+                                img.height = $('.photo-wrap').height();
+                                img.width = img.height * ratio;
+                                img.left = -(img.width - $('.photo-wrap').width()) / 2;
+                            }
+                            else {
+                                var ratio = img.height / img.width;
+                                img.width = $('.photo-wrap').width();
+                                img.height = img.width * ratio;
+                                img.top = -(img.height - $('.photo-wrap').height()) / 2;
+                            }
+                            photo = img;
+                            canvas.add(img);
+                            //$('.loading').fadeOut();
+                            
+                        });
+                    }, 500);
+                };
+
+                reader.readAsBinaryString(input.files[0]);
+            }
+            
+        }
+        function setCanvas() {
+            
+            
+
+            canvas = new fabric.Canvas('c', {
+                width: $('.photo-wrap').width(),
+                height: $('.photo-wrap').height(),
+                selection: false, //set to false if you want to disable grouping selection
+                controlsAboveOverlay: false,
+                preserveObjectStacking: true
+            });
+            ctx = canvas.getContext('2d');
+
+            isCanvasCreated = true;
+
+            canvas.on({
+                'touch:gesture': function() {
+                    var text = document.createTextNode(' Gesture ');
+                    
+                },
+                'touch:drag': function() {
+                    var text = document.createTextNode(' Dragging ');
+                   
+                }
+            });
+            
+
+        }

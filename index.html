@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="css/font-awesome.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/jquery-1.11.2.min.js"></script>
+    <script src="js/html2canvas.js"></script>
+    <script src="js/exif.min.js"></script>
+    <script src="js/megapix-image.min.js"></script>
+    <script src="js/binaryajax.min.js"></script>
+    <script src="http://fabricjs.com/lib/fabric_with_gestures.js"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1 class="main-title">「台湾居民未往來大陆贱民证」申辦處</h1>
+      <div class="inner">
+        <div class="intro">
+          <h2 class="form-title">「台湾居民未往來大陆贱民证」<br>申請表格</h2>
+          <p class="msg">請點擊下方「上傳照片」按鈕選擇您欲使用的相片，上傳完畢後可拖曳調整。</p>
+          <p class="msg">調整完畢後，點擊「完成手續」即可下載此證。</p>
+        </div>
+        <div class="make-block">
+          <input class="uploadphoto" id="upload" type="file" accept="image/*" style="display:none;">
+          <label id="fileLabel" for="upload"></label>
+          <div class="photo-container">
+            <div class="photo-wrap">
+              <canvas id="c"></canvas>
+              <div class="frame"></div>
+            </div>
+          </div>
+          <div class="control"><a class="upload-btn" href="javascript:;">上傳照片</a><a class="download-btn" href="javascript:;">完成手續</a></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      var canvas;
+      var isCanvasCreated = false;
+      var ctx;
+      var photo;
+      $(document).ready(function(){
+          setCanvas();
+         
+          //照片上傳
+          $('.upload-btn').click(function(){$('#upload').trigger('click');});
+          $('.uploadphoto').on('change',function(){
+              
+              if(isCanvasCreated){
+                  canvas.clear().renderAll();
+              }
+              readURL(this);
+              
+          });
+      
+          $('.download-btn').click(function(){
+              canvas.deactivateAll().renderAll();
+              if($('body #tempIfm').length>0) $('body #tempIfm').remove();
+              html2canvas($('.photo-container'),{
+                  onrendered: function(canvas){
+                      var tempImg = canvas.toDataURL("image/png");
+                      //$('.download-btn').attr('href',tempImg);
+                      url = tempImg.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+                      $ifm = $('<iframe id="tempIfm" style="display:none;">');
+                      $ifm.attr('src',url);
+                      $('body').append($ifm);
+                      //window.open(url);
+                  }
+              });
+          })
+      
+      });
+      
+      
+      function readURL(input) {
+          if (input.files && input.files[0]) {
+              var file = input.files[0];
+              var reader = new FileReader();
+              var imgurl;
+              reader.onload = function (e) {
+                  console.log(input.files[0])
+                  var exif = EXIF.readFromBinaryFile(new BinaryFile(e.target.result));
+      
+                  var tmp_canvas = document.createElement('canvas');
+                  window.mp = new MegaPixImage(input.files[0]);
+                  
+                  mp.render(tmp_canvas, {
+                      orientation: exif.Orientation,
+                      quality: 0.8
+                  });
+      
+                  setTimeout(function () {
+                      imgurl = tmp_canvas.toDataURL("image/jpeg", 0.8);
+                      fabric.Image.fromURL(imgurl, function (img) {
+                          if (img.width > img.height) {
+                              var ratio = img.width / img.height;
+                              img.height = $('.photo-wrap').height();
+                              img.width = img.height * ratio;
+                              img.left = -(img.width - $('.photo-wrap').width()) / 2;
+                          }
+                          else {
+                              var ratio = img.height / img.width;
+                              img.width = $('.photo-wrap').width();
+                              img.height = img.width * ratio;
+                              img.top = -(img.height - $('.photo-wrap').height()) / 2;
+                          }
+                          photo = img;
+                          canvas.add(img);
+                          //$('.loading').fadeOut();
+                          
+                      });
+                  }, 500);
+              };
+      
+              reader.readAsBinaryString(input.files[0]);
+          }
+          
+      }
+      function setCanvas() {
+          
+          
+      
+          canvas = new fabric.Canvas('c', {
+              width: $('.photo-wrap').width(),
+              height: $('.photo-wrap').height(),
+              selection: false, //set to false if you want to disable grouping selection
+              controlsAboveOverlay: false,
+              preserveObjectStacking: true
+          });
+          ctx = canvas.getContext('2d');
+      
+          isCanvasCreated = true;
+      
+          canvas.on({
+              'touch:gesture': function() {
+                  var text = document.createTextNode(' Gesture ');
+                  
+              },
+              'touch:drag': function() {
+                  var text = document.createTextNode(' Dragging ');
+                 
+              }
+          });
+          
+      
+      }
+    </script>
+  </body>
+</html>

@@ -5,10 +5,18 @@
 //========================
 // default
 //========================
+html{
+	min-height: 100%;
+}
 body {
 	font-family: Arial, Helvetica, "PingFang TC", "Microsoft JhengHei", sans-serif;
 	font-size: 12px;
-	background-color: @baseBg;
+	background-image: url(../images/bg.jpg);
+	background-position: center bottom;
+	background-size: cover;
+	background-repeat: no-repeat;
+	height: auto;
+	min-height: 100%;
 }
 
 
@@ -59,6 +67,13 @@ input[type="button"] {
 // module
 //========================
 
+.wrap{
+	width: 90%;
+	max-width: 480px;
+	margin: 0 auto;
+	overflow: hidden;
+}
+
 
 
 
@@ -74,13 +89,104 @@ input[type="button"] {
 // page
 //========================
 
+.inner{
+	width: 100%;
+	margin: 10% auto;
+	background-color: white;
+	padding: 5% 0;
+	
+}
+.make-block{
+	width: 90%;
+	position: relative;
+	margin: 0 auto;
+}
+.photo-container{
+	width: 100%;
+	padding-bottom: 100%;
+	height: 0;
+	position: relative;
+	#upload,
+	#filelabel{
+		display: none;
+	}
+	.photo-wrap{
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		top: 0;
+		left: 0;
+	}
+	.frame{
+		position: absolute;
+		z-index: 10;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+		background-image: url(../images/frame.png);
+		background-position: 0 0;
+		background-size: 100% 100%;
+	}
+}
+
+.main-title{
+	display: block;
+	width: 100%;
+	height: auto;
+	padding: .5em 1em;
+	box-sizing: border-box;
+	line-height: 1.3em;
+	color: white;
+	margin: 20px auto;
+	font-size: 3em;
+	background-color: #19a166;
+	.border-radius(10px);
+	.box-shadow(rgba(10,68,43,1) 0px 5px 5px 0);
+}
 
 
+.control{
+	overflow: hidden;
+	margin-top: 20px;
+}
 
+.upload-btn,
+.download-btn{
+	display: block;
+	float: left;
+	width: 50%;
+	font-size: 1.5em;
+	box-sizing: border-box;
+	border: 1px solid black;
+	text-align: center;
+	line-height: 1em;
+	padding: 1em;
+}
 
+.upload-btn{
+	border-right: none;
+}
+.intro{
+	margin-bottom: 3em;
+}
+.form-title{
+	width: 100%;
+	display: block;
+	margin-bottom: 1em;
+	font-size: 2em;
+	font-weight: normal;
+	text-align: center;
 
-
-
+}
+.msg{
+	display: block;
+	width: 90%;
+	font-size: 1.3em;
+	line-height: 1.5em;
+	margin: 0 auto .5em auto;
+}
 
 
 
